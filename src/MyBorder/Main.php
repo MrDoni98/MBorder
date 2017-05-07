@@ -17,7 +17,7 @@ Class Main extends PluginBase implements Listener
     public $config;
 
     public function onEnable(){
-        $this->getServer()->getLogger()->info(F::GREEN."MBorder is loaded!");
+        $this->getServer()->getLogger()->info(F::GREEN."MyBorder is loaded!");
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         @mkdir($this->getDataFolder());
         $this->config = new Config($this->getDataFolder()."config.yml", Config::YAML, array(
