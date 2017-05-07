@@ -3,16 +3,17 @@
 namespace MyBorder;
 
 use pocketmine\math\Vector2;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\event\player\{PlayerMoveEvent, PlayerQuitEvent, PlayerJoinEvent};
+use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as F;
 //use pocketmine\math\Vector3;
 
 Class Main extends PluginBase implements Listener
 {
-    public $positions = array();
     public $config;
 
     public function onEnable(){
@@ -57,14 +58,29 @@ Class Main extends PluginBase implements Listener
                     return;
                 }
             }
-        }/*
-        if($event->isCancelled()){
-            if(isset($this->positions[$player->getName()])){
-                $player->setMotion($this->positions[$player->getName()]);
+        }
+    }
+
+    public function onTeleport(EntityTeleportEvent $event){
+        $player = $event->getEntity();
+        if($player instanceof Player){
+            $Plevel = $player->getLevel();
+            $config = $this->config->getAll();
+            $moveTo = $event->getTo();
+            foreach($config as $level => $radius){
+                $lvl = $this->getServer()->getLevelByName($level);
+                if($Plevel === $lvl){
+                    $v = new Vector2($lvl->getSpawnLocation()->getX(),$lvl->getSpawnLocation()->getZ());
+                    $p = new Vector2($moveTo->x, $moveTo->z);
+                    if($p->distance($v) >= $radius){
+                        $event->setCancelled();
+                        //$event->setTo($event->getFrom());
+                        $player->sendMessage(F::YELLOW. "[MyBorder]" .F::GOLD. " Вам нельзя телепортироваться за пределы границы");
+                        return;
+                    }
+                }
             }
-        }else{
-            $this->positions[$player->getName()] = $player->getLocation();
-        }*/
+        }
     }
 
     public function onQuit(PlayerQuitEvent $event){
