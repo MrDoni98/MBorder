@@ -1,0 +1,6 @@
+name: MyBorder
+main: MyBorder\Main
+api: 3.0.0
+author: MrDoni98
+version: 1.0
+description: Плагин ограничивает расттояние на которое игроки могут уходить от спавна
