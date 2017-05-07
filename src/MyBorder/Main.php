@@ -2,12 +2,13 @@
 
 namespace MyBorder;
 
+use pocketmine\math\Vector2;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
-use pocketmine\event\player\{PlayerMoveEvent, PlayerQuitEvent};
+use pocketmine\event\player\{PlayerMoveEvent, PlayerQuitEvent, PlayerJoinEvent};
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as F;
-use pocketmine\math\Vector3;
+//use pocketmine\math\Vector3;
 
 Class Main extends PluginBase implements Listener
 {
@@ -23,27 +24,47 @@ Class Main extends PluginBase implements Listener
         ));
     }
 
-    public function Move(PlayerMoveEvent $event) {
+    public function onJoin(PlayerJoinEvent $event){
         $player = $event->getPlayer();
         $Plevel = $player->getLevel();
         $config = $this->config->getAll();
         foreach($config as $level => $radius){
             $lvl = $this->getServer()->getLevelByName($level);
             if($Plevel === $lvl){
-                $v = new Vector3($lvl->getSpawnLocation()->getX(),$lvl->getSpawnLocation()->getY(),$lvl->getSpawnLocation()->getZ());
-                if($player->getPosition()->distance($v) >= $radius){
-                    $event->setCancelled();
-                    $player->sendPopup(F::YELLOW. "[MyBorder]" .F::GOLD. " Вы далеко зашли!");
+                $v = new Vector2($lvl->getSpawnLocation()->getX(),$lvl->getSpawnLocation()->getZ());
+                $p = new Vector2($player->getX(), $player->getZ());
+                if($p->distance($v) >= $radius){
+                    $player->teleport($lvl->getSpawnLocation());
                 }
             }
         }
+    }
+
+    public function Move(PlayerMoveEvent $event) {
+        $player = $event->getPlayer();
+        $Plevel = $player->getLevel();
+        $config = $this->config->getAll();
+        $moveTo = $event->getTo();
+        foreach($config as $level => $radius){
+            $lvl = $this->getServer()->getLevelByName($level);
+            if($Plevel === $lvl){
+                $v = new Vector2($lvl->getSpawnLocation()->getX(),$lvl->getSpawnLocation()->getZ());
+                $p = new Vector2($moveTo->x, $moveTo->z);
+                if($p->distance($v) >= $radius){
+                    //$event->setCancelled();
+                    $event->setTo($event->getFrom());
+                    $player->sendPopup(F::YELLOW. "[MyBorder]" .F::GOLD. " Вы далеко зашли!");
+                    return;
+                }
+            }
+        }/*
         if($event->isCancelled()){
             if(isset($this->positions[$player->getName()])){
                 $player->setMotion($this->positions[$player->getName()]);
             }
         }else{
             $this->positions[$player->getName()] = $player->getLocation();
-        }
+        }*/
     }
 
     public function onQuit(PlayerQuitEvent $event){
