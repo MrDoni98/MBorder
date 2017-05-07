@@ -64,9 +64,9 @@ Class Main extends PluginBase implements Listener
     public function onTeleport(EntityTeleportEvent $event){
         $player = $event->getEntity();
         if($player instanceof Player){
-            $Plevel = $player->getLevel();
             $config = $this->config->getAll();
             $moveTo = $event->getTo();
+            $Plevel = $moveTo->getLevel();
             foreach($config as $level => $radius){
                 $lvl = $this->getServer()->getLevelByName($level);
                 if($Plevel === $lvl){
